@@ -32,6 +32,23 @@ macro_rules! log {
 }
 // #}
 
+pub struct Timer<'a> {
+    name: &'a str,
+}
+
+impl<'a> Timer<'a> {
+    pub fn new(name: &'a str) -> Timer<'a> {
+        web_sys::console::time_with_label(name);
+        Timer { name }
+    }
+}
+
+impl<'a> Drop for Timer<'a> {
+    fn drop(&mut self) {
+        web_sys::console::time_end_with_label(self.name);
+    }
+}
+
 // # #![allow(unused_variables)]
 // #fn main() {
 #[wasm_bindgen]
@@ -80,6 +97,7 @@ impl Universe {
 
     pub fn tick(&mut self) {
         let mut next = self.cells.clone();
+        let _timer = Timer::new("Universe::tick");
 
         for row in 0..self.height {
             for col in 0..self.width {
@@ -87,13 +105,13 @@ impl Universe {
                 let cell = self.cells[idx];
                 let live_neighbors = self.live_neighbor_count(row, col);
 
-                log!(
-                    "cell[{}, {}] is initially {:?} and has {} live neighbors",
-                    row,
-                    col,
-                    cell,
-                    live_neighbors
-                );
+                // log!(
+                //     "cell[{}, {}] is initially {:?} and has {} live neighbors",
+                //     row,
+                //     col,
+                //     cell,
+                //     live_neighbors
+                // );
 
                 let next_cell = match (cell, live_neighbors) {
                     // Rule 1: Any live cell with fewer than two live neighbours
@@ -112,7 +130,7 @@ impl Universe {
                     (otherwise, _) => otherwise,
                 };
 
-                log!("    it becomes {:?}", next_cell);
+                //log!("    it becomes {:?}", next_cell);
 
                 next[idx] = next_cell;
             }
