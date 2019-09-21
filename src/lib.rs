@@ -113,7 +113,7 @@ impl Universe {
                 };
 
                 log!("    it becomes {:?}", next_cell);
-                
+
                 next[idx] = next_cell;
             }
         }
@@ -174,6 +174,11 @@ impl Universe {
         self.height = height;
         self.cells = (0..self.width * height).map(|_i| Cell::Dead).collect();
     }
+
+    pub fn toggle_cell(&mut self, row: u32, column: u32) {
+        let idx = self.get_index(row, column);
+        self.cells[idx].toggle();
+    }
 }
 // #}
 
@@ -213,3 +218,11 @@ impl fmt::Display for Universe {
 }
 // #}
 
+impl Cell {
+    fn toggle(&mut self) {
+        *self = match *self {
+            Cell::Dead => Cell::Alive,
+            Cell::Alive => Cell::Dead,
+        };
+    }
+}
